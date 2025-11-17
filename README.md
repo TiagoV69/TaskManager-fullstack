@@ -99,6 +99,10 @@ npm run dev
 Frontend (React) → API REST (Spring Boot) → PostgreSQL
 ```
 
+## 📸 Screenshots
+
+![Visualización del proyecto](image.png)
+
 ## 📝 API Endpoints
 
 | Método | Endpoint | Descripción |
