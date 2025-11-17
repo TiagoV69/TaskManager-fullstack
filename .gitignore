@@ -1,0 +1,30 @@
+# BACKEND (Spring Boot)
+backend/target/
+backend/*.jar
+backend/*.war
+backend/*.ear
+backend/.mvn/
+backend/mvnw
+backend/mvnw.cmd
+
+# FRONTEND (React)
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.vite/
+frontend/.cache/
+
+# DOCKER
+*.log
+.env
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+# DATABASES
+# 
+*.db
+*.sqlite

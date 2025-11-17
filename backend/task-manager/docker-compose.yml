@@ -1,0 +1,80 @@
+  version: '3.8'
+
+  # SERVICIOS (Contenedores)
+  services:
+    
+    # SERVICIO 1: PostgreSQL Database
+    postgres:
+      image: postgres:16-alpine # Versión ligera de PostgreSQL
+      container_name: taskmanager-postgres
+      restart: unless-stopped
+      
+      environment:
+        POSTGRES_DB: Sprng_TaskmanagerDB # Nombre de la base de datos
+        POSTGRES_USER: postgres 
+        POSTGRES_PASSWORD: Mateito6900@
+        PGDATA: /var/lib/postgresql/data/pgdata
+      
+      ports:
+        - "5432:5432"
+      
+      volumes:
+        - postgres-data:/var/lib/postgresql/data
+      
+      networks:
+        - taskmanager-network
+      
+      healthcheck:
+        test: ["CMD-SHELL", "pg_isready -U postgres -d Sprng_TaskmanagerDB"]
+        interval: 10s
+        timeout: 5s
+        retries: 5
+
+    # SERVICIO 2: Spring Boot Application
+    backend:
+      build:
+        context: .
+        dockerfile: Dockerfile
+      container_name: taskmanager-backend
+      restart: unless-stopped
+      
+      environment:
+        # Database connection
+        SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/Sprng_TaskmanagerDB 
+        SPRING_DATASOURCE_USERNAME: postgres
+        SPRING_DATASOURCE_PASSWORD: Mateito6900@
+        
+        # JPA/Hibernate
+        SPRING_JPA_HIBERNATE_DDL_AUTO: update
+        SPRING_JPA_SHOW_SQL: "true"
+        
+        # Spring profile
+        SPRING_PROFILES_ACTIVE: docker
+      
+      ports:
+        - "8080:8080"
+      
+      depends_on:
+        postgres:
+          condition: service_healthy
+      
+      networks:
+        - taskmanager-network
+      
+      healthcheck:
+        test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/api/tasks/health"]
+        interval: 30s
+        timeout: 10s
+        retries: 3
+        start_period: 40s
+
+  # VOLÚMENES (Almacenamiento persistente)
+  volumes:
+    postgres-data:
+      driver: local
+
+  # REDES (Comunicación entre contenedores)
+  networks:
+    taskmanager-network:
+      driver: bridge
+

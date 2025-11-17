@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Test CORS - Task Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            margin: 5px;
+            border-radius: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 5px;
+            white-space: pre-wrap;
+        }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1> Test CORS - Task Manager API</h1>
+    
+    <div>
+        <button onclick="testGetTasks()">GET /api/tasks</button>
+        <button onclick="testCreateTask()">POST /api/tasks</button>
+        <button onclick="testGetTaskById()">GET /api/tasks/1</button>
+    </div>
+    
+    <div id="result">
+        <p>Haz clic en un botón para probar CORS...</p>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8080/api';
+        const resultDiv = document.getElementById('result');
+
+        function showResult(title, data, isError = false) {
+            const className = isError ? 'error' : 'success';
+            resultDiv.innerHTML = `
+                <h3 class="${className}">${title}</h3>
+                <pre>${JSON.stringify(data, null, 2)}</pre>
+            `;
+        }
+
+        // GET /api/tasks
+        async function testGetTasks() {
+            try {
+                const response = await fetch(`${API_URL}/tasks`, {
+                    credentials: 'include'  // OJP necesario para allowCredentials(true)
+                });
+                const data = await response.json();
+                showResult('YES GET /api/tasks - CORS Funciona', data);
+            } catch (error) {
+                showResult('NOO GET /api/tasks - Error CORS', error.message, true);
+            }
+        }
+
+        // POST /api/tasks
+        async function testCreateTask() {
+            try {
+                const response = await fetch(`${API_URL}/tasks`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: 'Test CORS',
+                        description: 'Tarea de prueba desde HTML',
+                        completed: false
+                    }),
+                    credentials: 'include'  // OJO necesario para allowCredentials(true)
+                });
+                const data = await response.json();
+                showResult('YES POST /api/tasks - CORS Funciona', data);
+            } catch (error) {
+                showResult('NOO POST /api/tasks - Error CORS', error.message, true);
+            }
+        }
+
+        // GET /api/tasks/1
+        async function testGetTaskById() {
+            try {
+                const response = await fetch(`${API_URL}/tasks/1`, {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                showResult('YES GET /api/tasks/1 - CORS Funciona', data);
+            } catch (error) {
+                showResult('NOO GET /api/tasks/1 - Error', error.message, true);
+            }
+        }
+    </script>
+</body>
+</html>
